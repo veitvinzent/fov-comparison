@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera FOV Comparison</title>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="app">
+      <div id="controls">
+        <div id="control-group-template" class="control-group">
+          <label for="focal-length">Focal length (mm)</label>
+          <input type="number" name="focal-length" min="0" value="50" oninput="render()">
+          <label for="orientation">Orientation</label>
+          <select name="orientation" oninput="render()">
+            <option value='landscape'>Landscape</option>
+            <option value="portrait">Portrait</option>
+          </select>
+          <label for="sensor-size">Sensor size</label>
+          <select name="sensor-size" oninput="sensorSizeSelectionChanged(this)">
+            <option value='{"sensorWidth": 36, "sensorHeight": 24}'>Full Frame</option>
+            <option value='{"sensorWidth": 23.6, "sensorHeight": 15.7}'>APS-C (excl. Canon)</option>
+            <option value='{"sensorWidth": 22.2, "sensorHeight": 14.8}'>APS-C (Canon)</option>
+            <option value='{"sensorWidth": 17.3, "sensorHeight": 13}'>Micro Four Thirds</option>
+            <option value='{"sensorWidth": 43.8, "sensorHeight": 32.9}'>Medium Format</option>
+            <option value='{"sensorWidth": 13.2, "sensorHeight": 8.8}'>1 inch</option>
+            <option value='{"sensorWidth": 8.6, "sensorHeight": 6.6}'>2/3 inch</option>
+            <option value='{"sensorWidth": 6.4, "sensorHeight": 4.8}'>1/2 inch</option>
+            <option value='{"sensorWidth": 62, "sensorHeight": 46}'>instax mini</option>
+            <option value='{"sensorWidth": 62, "sensorHeight": 62}'>instax SQUARE</option>
+            <option value='{"sensorWidth": 99, "sensorHeight": 62}'>instax WIDE</option>
+            <option value="custom">Custom...</option>
+          </select>
+          <label class="hidden" for="custom-sensor-width">Custom sensor width (mm)</label>
+          <input class="hidden" type="number" name="custom-sensor-width" min="0" value="50" oninput="render()">
+          <label class="hidden" for="custom-sensor-height">Custom sensor height (mm)</label>
+          <input class="hidden" type="number" name="custom-sensor-height" min="0" value="50" oninput="render()">
+        </div>
+        <div id="control-groups"></div>
+        <input type="button" value="Add" onclick="addControlGroup()">
+      </div>
+      <canvas id="canvas" width="800" height="600" style="background: url('img/background.heic'); background-size: cover;"></canvas>
+    </div>
+  </body>
+</html>
