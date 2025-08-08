@@ -7,10 +7,13 @@ body {
 #app {
     display: flex;
     align-items: start;
+    gap: 0.25rem;
 }
 
 #canvas {
     border-color: blue;
+    background: url('img/background.jpg');
+    background-size: cover;
 }
 
 .hidden {
@@ -21,7 +24,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.25rem;
 }
 
 #control-group-template {
