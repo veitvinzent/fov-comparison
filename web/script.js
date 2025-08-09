@@ -1,6 +1,22 @@
-window.onload = function() {
+window.addEventListener('load', function() {
+    setCanvasDimensions();
     addControlGroup();
-};
+});
+
+window.addEventListener('resize', function() {
+    setCanvasDimensions();
+    render();
+});
+
+function setCanvasDimensions() {
+
+    const canvasContainer = document.querySelector('#canvas-container');
+    let canvas = document.querySelector('#canvas');
+
+    // fit the maximum 4:3 aspect ratio canvas in the container
+    canvas.width = Math.min(canvasContainer.clientWidth, canvasContainer.clientHeight * 4 / 3);
+    canvas.height = Math.min(canvasContainer.clientHeight, canvasContainer.clientWidth * 3 / 4);
+}
 
 function sensorSizeSelectionChanged(element) {
 
