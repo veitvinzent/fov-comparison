@@ -13,9 +13,15 @@ function setCanvasDimensions() {
     const canvasContainer = document.querySelector('#canvas-container');
     let canvas = document.querySelector('#canvas');
 
-    // fit the maximum 4:3 aspect ratio canvas in the container
-    canvas.width = Math.min(canvasContainer.clientWidth, canvasContainer.clientHeight * 4 / 3);
-    canvas.height = Math.min(canvasContainer.clientHeight, canvasContainer.clientWidth * 3 / 4);
+    if (window.matchMedia('(max-width: 1000px)').matches) {
+        // mobile case, easy: canvas takes up max width and has 4:3 aspect ratio
+        canvas.width = canvasContainer.clientWidth;
+        canvas.height = canvas.clientWidth * 3 / 4;
+    } else {
+        // fit the maximum 4:3 aspect ratio canvas in the container
+        canvas.width = Math.min(canvasContainer.clientWidth, canvasContainer.clientHeight * 4 / 3);
+        canvas.height = Math.min(canvasContainer.clientHeight, canvasContainer.clientWidth * 3 / 4);
+    }
 }
 
 function sensorSizeSelectionChanged(element) {
@@ -33,6 +39,12 @@ function refreshControlGroup(element) {
     } else {
         customSensorElements.forEach(element => element.classList.add('hidden'));
     }
+}
+
+function resetControlGroups() {
+    let controlGroups = document.querySelector('#control-groups');
+    controlGroups.replaceChildren();
+    addControlGroup();
 }
 
 function addControlGroup() {
@@ -63,7 +75,7 @@ function addControlGroupWithValues(controlGroupValues) {
     newControlGroup.querySelector('input[name=custom-sensor-height]').value = controlGroupValues.customSensorHeight;
     refreshControlGroup(newControlGroup);
 
-    controlGroups.appendChild(newControlGroup);
+    controlGroups.insertBefore(newControlGroup, controlGroups.firstChild);
 
     render();
 }

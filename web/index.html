@@ -12,14 +12,14 @@
       <div id="controls-container">
         <div id="control-group-template" class="control-group">
           <label for="focal-length">Focal length (mm)</label>
-          <input type="number" name="focal-length" min="0" value="50" oninput="render()">
+          <input type="number" name="focal-length" min="0" value="50" oninput="render();">
           <label for="orientation">Orientation</label>
-          <select name="orientation" oninput="render()">
+          <select name="orientation" oninput="render();">
             <option value='landscape'>Landscape</option>
             <option value="portrait">Portrait</option>
           </select>
           <label for="sensor-size">Sensor size</label>
-          <select name="sensor-size" oninput="sensorSizeSelectionChanged(this)">
+          <select name="sensor-size" oninput="sensorSizeSelectionChanged(this);">
             <option value='{"sensorWidth": 36, "sensorHeight": 24}'>Full Frame</option>
             <option value='{"sensorWidth": 23.6, "sensorHeight": 15.7}'>APS-C (excl. Canon)</option>
             <option value='{"sensorWidth": 22.2, "sensorHeight": 14.8}'>APS-C (Canon)</option>
@@ -34,12 +34,15 @@
             <option value="custom">Custom...</option>
           </select>
           <label class="hidden" for="custom-sensor-width">Custom sensor width (mm)</label>
-          <input class="hidden" type="number" name="custom-sensor-width" min="0" value="50" oninput="render()">
+          <input class="hidden" type="number" name="custom-sensor-width" min="0" value="50" oninput="render();">
           <label class="hidden" for="custom-sensor-height">Custom sensor height (mm)</label>
-          <input class="hidden" type="number" name="custom-sensor-height" min="0" value="50" oninput="render()">
+          <input class="hidden" type="number" name="custom-sensor-height" min="0" value="50" oninput="render();">
+        </div>
+        <div id="super-controls">
+          <input type="button" value="Add" onclick="addControlGroup();">
+          <input type="button" value="Reset" onclick="resetControlGroups();">
         </div>
         <div id="control-groups"></div>
-        <input type="button" value="Add" onclick="addControlGroup()">
       </div>
       <div id="canvas-container">
         <canvas id="canvas"></canvas>
