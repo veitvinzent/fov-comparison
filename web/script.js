@@ -1,6 +1,13 @@
 window.addEventListener('load', function() {
     setCanvasDimensions();
-    addControlGroup();
+
+    // init with values from url or default
+    const controlGroupValuesListFromUrl = getControlGroupValuesListFromUrl();
+    if (controlGroupValuesListFromUrl.length === 0) {
+        addControlGroup();
+    } else {
+        controlGroupValuesListFromUrl.forEach(controlGroupValues => addControlGroupWithValues(controlGroupValues));
+    }
 });
 
 window.addEventListener('resize', function() {
@@ -141,4 +148,57 @@ function render() {
             rect.height);
         context2d.stroke();
     });
+}
+
+function createAndCopySettingsUrl() {
+
+    let url = new URL(document.URL);
+    url.search = '';
+
+    // build URL paramters from control group settings
+    Array.from(document.querySelectorAll('.control-group:not(#control-group-template)'))
+        .reverse()
+        .map(controlGroup => getValuesForControlGroup(controlGroup))
+        .forEach(values => {
+            url.searchParams.append('f', values.focalLength);
+            url.searchParams.append('o', values.orientation);
+            url.searchParams.append('sz', values.sensorSize);
+            url.searchParams.append('csw', values.customSensorWidth);
+            url.searchParams.append('csh', values.customSensorHeight);
+        });
+
+    navigator.clipboard.writeText(url.href);
+    alert('Copied the URL to these settings!');
+}
+
+function getControlGroupValuesListFromUrl() {
+
+    const url = new URL(document.URL);
+
+    const focalLengths = url.searchParams.getAll('f');
+    const orientations = url.searchParams.getAll('o');
+    const sensorSizes = url.searchParams.getAll('sz');
+    const customSensorWidths = url.searchParams.getAll('csw');
+    const customSensorHeights = url.searchParams.getAll('csh');
+
+    if (!(focalLengths.length === orientations.length &&
+        orientations.length === sensorSizes.length &&
+        sensorSizes.length === customSensorWidths.length &&
+        customSensorWidths.length === customSensorHeights.length)) {
+
+        return []; // something is wrong with the parameters, return nothing
+    }
+
+    // extract control group values from the url parameters
+    let controlGroupValues = [];
+    for (let i = 0; i < focalLengths.length; i++) {
+        controlGroupValues.push({
+            focalLength: Number(focalLengths[i]),
+            orientation: orientations[i],
+            sensorSize: sensorSizes[i],
+            customSensorWidth: Number(customSensorWidths[i]),
+            customSensorHeight: Number(customSensorHeights[i])
+        });
+    }
+    return controlGroupValues;
 }
