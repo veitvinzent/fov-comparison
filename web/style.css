@@ -98,8 +98,8 @@ body {
 .control-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    align-items: center;
     gap: 5px;
     padding: 5px;
-    border: 2px solid;
-    border-radius: 5px;
+    border: 1.5px solid;
 }

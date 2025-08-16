@@ -105,6 +105,7 @@ function render() {
     const context2d = canvas.getContext('2d');
 
     context2d.clearRect(0, 0, canvas.width, canvas.height);
+    context2d.lineWidth = 1.5;
 
     // gather focal length and sensor size information from the elements
     document.querySelectorAll('.control-group:not(#control-group-template)').values().map(controlGroup => {
