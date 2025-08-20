@@ -14,23 +14,23 @@
           <label for="focal-length">Focal length (mm)</label>
           <input type="number" name="focal-length" min="0" value="50" oninput="render();">
           <label for="orientation">Orientation</label>
-          <select name="orientation" oninput="render();">
-            <option value='landscape'>Landscape</option>
-            <option value="portrait">Portrait</option>
+          <select name="portrait" oninput="render();">
+            <option value="false">Landscape</option>
+            <option value="true">Portrait</option>
           </select>
           <label for="sensor-size">Sensor size</label>
           <select name="sensor-size" oninput="sensorSizeSelectionChanged(this);">
-            <option value='{"sensorWidth": 36, "sensorHeight": 24}'>Full Frame</option>
-            <option value='{"sensorWidth": 23.6, "sensorHeight": 15.7}'>APS-C (excl. Canon)</option>
-            <option value='{"sensorWidth": 22.2, "sensorHeight": 14.8}'>APS-C (Canon)</option>
-            <option value='{"sensorWidth": 17.3, "sensorHeight": 13}'>Micro Four Thirds</option>
-            <option value='{"sensorWidth": 43.8, "sensorHeight": 32.9}'>Medium Format</option>
-            <option value='{"sensorWidth": 13.2, "sensorHeight": 8.8}'>1 inch</option>
-            <option value='{"sensorWidth": 8.6, "sensorHeight": 6.6}'>2/3 inch</option>
-            <option value='{"sensorWidth": 6.4, "sensorHeight": 4.8}'>1/2 inch</option>
-            <option value='{"sensorWidth": 62, "sensorHeight": 46}'>instax mini</option>
-            <option value='{"sensorWidth": 62, "sensorHeight": 62}'>instax SQUARE</option>
-            <option value='{"sensorWidth": 99, "sensorHeight": 62}'>instax WIDE</option>
+            <option value='{"width": 36, "height": 24}'>Full Frame</option>
+            <option value='{"width": 23.6, "height": 15.7}'>APS-C (excl. Canon)</option>
+            <option value='{"width": 22.2, "height": 14.8}'>APS-C (Canon)</option>
+            <option value='{"width": 17.3, "height": 13}'>Micro Four Thirds</option>
+            <option value='{"width": 43.8, "height": 32.9}'>Medium Format</option>
+            <option value='{"width": 13.2, "height": 8.8}'>1 inch</option>
+            <option value='{"width": 8.6, "height": 6.6}'>2/3 inch</option>
+            <option value='{"width": 6.4, "height": 4.8}'>1/2 inch</option>
+            <option value='{"width": 62, "height": 46}'>instax mini</option>
+            <option value='{"width": 62, "height": 62}'>instax SQUARE</option>
+            <option value='{"width": 99, "height": 62}'>instax WIDE</option>
             <option value="custom">Custom...</option>
           </select>
           <label class="hidden" for="custom-sensor-width">Custom width (mm)</label>

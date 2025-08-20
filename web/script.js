@@ -1,12 +1,12 @@
 window.addEventListener('load', function() {
     setCanvasDimensions();
 
-    // init with values from url or default values
-    const controlGroupValuesListFromUrl = getControlGroupValuesListFromUrl();
-    if (controlGroupValuesListFromUrl.length === 0) {
+    // init with settings from url or default settings
+    const controlGroupSettingsListFromUrl = getControlGroupSettingsListFromUrl();
+    if (controlGroupSettingsListFromUrl.length === 0) {
         addControlGroup();
     } else {
-        controlGroupValuesListFromUrl.forEach(controlGroupValues => addControlGroupWithValues(controlGroupValues));
+        controlGroupSettingsListFromUrl.forEach(controlGroupSettings => addControlGroupWithSettings(controlGroupSettings));
     }
 });
 
@@ -52,9 +52,8 @@ function sensorSizeSelectionChanged(element) {
  * @param {Element} controlGroup
  */
 function refreshControlGroup(controlGroup) {
-
     // hide or show inputs for custom sensor size, depending on drop down menu selection
-    let customSensorElements = controlGroup.querySelectorAll('[for^="custom-sensor"], [name^="custom-sensor"]');
+    let customSensorElements = controlGroup.querySelectorAll('[for^=custom-sensor], [name^=custom-sensor]');
     if (controlGroup.querySelector('select[name=sensor-size]').value === 'custom') {
         customSensorElements.forEach(element => element.classList.remove('hidden'));
     } else {
@@ -72,25 +71,22 @@ function resetControlGroups() {
 }
 
 /**
- * Create a new control group that has the same values as the last control group or the template.
+ * Create a new control group that has the same settings as the most recent control group or the default.
  */
 function addControlGroup() {
-
-    let controlGroupToCopy = document.querySelector(':nth-last-child(1 of .control-group:not(#control-group-template)')
-    if (controlGroupToCopy == null) {
-        controlGroupToCopy = document.querySelector('#control-group-template');
-    }
-
-    const defaultValues = getValuesForControlGroup(controlGroupToCopy);
-    addControlGroupWithValues(defaultValues);
+    const mostRecentControlGroup = document.querySelector('#control-groups .control-group');
+    const controlGroupSettings = mostRecentControlGroup === null
+        ? ControlGroupSettings.defaultSettings
+        : ControlGroupSettings.fromControlGroup(mostRecentControlGroup);
+    addControlGroupWithSettings(controlGroupSettings);
 }
 
 /**
- * Create a new control group with the given values.
+ * Create a new control group with the given settings.
  *
- * @param {*} controlGroupValues
+ * @param {ControlGroupSettings} controlGroupSettings
  */
-function addControlGroupWithValues(controlGroupValues) {
+function addControlGroupWithSettings(controlGroupSettings) {
 
     const colors = ['red', 'yellow', 'olive', 'lime', 'green', 'aqua', 'teal', 'blue', 'navy', 'fuchsia', 'purple'];
     const controlGroupTemplate = document.querySelector('#control-group-template');
@@ -100,33 +96,15 @@ function addControlGroupWithValues(controlGroupValues) {
     let newControlGroup = controlGroupTemplate.cloneNode(true);
     newControlGroup.removeAttribute('id');
     newControlGroup.style.borderColor = colors[controlGroups.childElementCount % colors.length];
-    newControlGroup.querySelector('input[name=focal-length]').value = controlGroupValues.focalLength;
-    newControlGroup.querySelector('select[name=orientation]').value = controlGroupValues.orientation;
-    newControlGroup.querySelector('select[name=sensor-size]').value = controlGroupValues.sensorSize;
-    newControlGroup.querySelector('input[name=custom-sensor-width]').value = controlGroupValues.customSensorWidth;
-    newControlGroup.querySelector('input[name=custom-sensor-height]').value = controlGroupValues.customSensorHeight;
+    newControlGroup.querySelector('input[name=focal-length]').value = controlGroupSettings.focalLength;
+    newControlGroup.querySelector('select[name=portrait]').value = controlGroupSettings.portrait;
+    newControlGroup.querySelector('select[name=sensor-size]').value = controlGroupSettings.sensorSizeSelection;
+    newControlGroup.querySelector('input[name=custom-sensor-width]').value = controlGroupSettings.customSensorWidth;
+    newControlGroup.querySelector('input[name=custom-sensor-height]').value = controlGroupSettings.customSensorHeight;
     refreshControlGroup(newControlGroup);
 
     controlGroups.insertBefore(newControlGroup, controlGroups.firstChild);
-
     render();
-}
-
-/**
- * Pack the settings of a given control group in an object. Note: return.sensorSize is always a string.
- *
- * @param {Element} controlGroup
- * @returns object that contains the settings
- */
-function getValuesForControlGroup(controlGroup) {
-    return {
-        color: controlGroup.style.borderColor,
-        focalLength: Number(controlGroup.querySelector('input[name=focal-length]').value),
-        orientation: controlGroup.querySelector('select[name=orientation]').value,
-        sensorSize: controlGroup.querySelector('select[name=sensor-size]').value,
-        customSensorWidth: Number(controlGroup.querySelector('input[name=custom-sensor-width]').value),
-        customSensorHeight: Number(controlGroup.querySelector('input[name=custom-sensor-height]').value)
-    };
 }
 
 /**
@@ -142,46 +120,26 @@ function render() {
     context2d.lineWidth = 1.5;
 
     // gather focal length and sensor size information from the elements
-    document.querySelectorAll('.control-group:not(#control-group-template)').values().map(controlGroup => {
+    document.querySelectorAll('#control-groups .control-group').values()
+        .map(controlGroup => ControlGroupSettings.fromControlGroup(controlGroup))
+        .forEach(controlGroupSettings => {
 
-        const inputValues = getValuesForControlGroup(controlGroup);
+            // calculate the view area
+            const rect = {
+                width: canvas.width * (controlGroupSettings.sensorOriented.width * 6.5) / (17.3 * controlGroupSettings.focalLength),
+                height: canvas.height * (controlGroupSettings.sensorOriented.height * 6.5) / (13 * controlGroupSettings.focalLength)
+            };
 
-        let renderData = {
-            color: inputValues.color,
-            focalLength: inputValues.focalLength,
-            isRotated: inputValues.orientation === 'portrait'
-        };
-
-        // get sensor size from drop-down or custom values
-        Object.assign(
-            renderData,
-            inputValues.sensorSize === 'custom'
-                ? {sensorWidth: inputValues.customSensorWidth, sensorHeight: inputValues.customSensorHeight}
-                : JSON.parse(inputValues.sensorSize));
-
-        return renderData;
-
-    }).forEach(renderData => {
-
-        // calculate the view area
-        const rect = {
-            width: canvas.width * (renderData.sensorWidth * 6.5) / (17.3 * renderData.focalLength),
-            height: canvas.height * (renderData.sensorHeight * 6.5) / (13 * renderData.focalLength)
-        };
-        if (renderData.isRotated) {
-            [rect.width, rect.height] = [rect.height, rect.width];
-        }
-
-        // draw the rectangle
-        context2d.strokeStyle = renderData.color;
-        context2d.beginPath();
-        context2d.rect(
-            canvasCenter.x - rect.width / 2,
-            canvasCenter.y - rect.height / 2,
-            rect.width,
-            rect.height);
-        context2d.stroke();
-    });
+            // draw the rectangle
+            context2d.strokeStyle = controlGroupSettings.color;
+            context2d.beginPath();
+            context2d.rect(
+                canvasCenter.x - rect.width / 2,
+                canvasCenter.y - rect.height / 2,
+                rect.width,
+                rect.height);
+            context2d.stroke();
+        });
 }
 
 /**
@@ -192,17 +150,14 @@ function createAndCopySettingsUrl() {
     let url = new URL(document.URL);
     url.search = '';
 
-    Array.from(document.querySelectorAll('.control-group:not(#control-group-template)'))
+    Array.from(document.querySelectorAll('#control-groups .control-group'))
         .reverse()
-        .map(controlGroup => getValuesForControlGroup(controlGroup))
-        .forEach(values => {
-            const {sensorWidth, sensorHeight} = values.sensorSize === 'custom'
-                ? {sensorWidth: values.customSensorWidth, sensorHeight: values.customSensorHeight}
-                : JSON.parse(values.sensorSize);
-            url.searchParams.append('f', values.focalLength);
-            url.searchParams.append('o', values.orientation.substring(0, 1));
-            url.searchParams.append('sw', sensorWidth);
-            url.searchParams.append('sh', sensorHeight);
+        .map(controlGroup => ControlGroupSettings.fromControlGroup(controlGroup))
+        .forEach(controlGroupSettings => {
+            url.searchParams.append('f', controlGroupSettings.focalLength);
+            url.searchParams.append('p', controlGroupSettings.portrait);
+            url.searchParams.append('sw', controlGroupSettings.sensor.width);
+            url.searchParams.append('sh', controlGroupSettings.sensor.height);
         });
 
     navigator.clipboard.writeText(url.href);
@@ -212,40 +167,107 @@ function createAndCopySettingsUrl() {
 /**
  * Look at the URL parameters and determine the initial control group settings.
  *
- * @returns array of control group values
+ * @returns array of control group settings
  */
-function getControlGroupValuesListFromUrl() {
+function getControlGroupSettingsListFromUrl() {
 
     const url = new URL(document.URL);
     if (url.search === '') {
         return []; // we have nothing to do, if there are no URL parameters
     }
 
-    const focalLengths = url.searchParams.getAll('f');
-    const orientations = url.searchParams.getAll('o');
-    const sensorWidths = url.searchParams.getAll('sw');
-    const sensorHeights = url.searchParams.getAll('sh');
-    if (new Set([focalLengths.length, orientations.length, sensorWidths.length, sensorHeights.length]).size !== 1) {
+    const focalLengths = url.searchParams.getAll('f').map(focalLength => Number(focalLength));
+    const portraits = url.searchParams.getAll('p').map(portrait => portrait === 'true');
+    const sensorWidths = url.searchParams.getAll('sw').map(sensorWidth => Number(sensorWidth));
+    const sensorHeights = url.searchParams.getAll('sh').map(sensorHeight => Number(sensorHeight));
+    if (new Set([focalLengths.length, portraits.length, sensorWidths.length, sensorHeights.length]).size !== 1) {
         return []; // something is wrong with the parameters, return nothing
     }
 
-    const defaultCustomSensorWidth = Number(document.querySelector('#control-group-template input[name=custom-sensor-width').value);
-    const defaultCustomSensorHeight = Number(document.querySelector('#control-group-template input[name=custom-sensor-height').value);
-
-    // extract control group values from the url parameters
-    let controlGroupValuesList = [];
+    // extract control group settings from the url parameters
+    let controlGroupSettingsList = [];
     for (let i = 0; i < focalLengths.length; i++) {
-
-        const sensorSizeOptionValue = `{"sensorWidth": ${sensorWidths[i]}, "sensorHeight": ${sensorHeights[i]}}`;
-        const isCustomSensorSize = document.querySelector(`#control-group-template option[value='${sensorSizeOptionValue}']`) === null;
-
-        controlGroupValuesList.push({
-            focalLength: Number(focalLengths[i]),
-            orientation: orientations[i] === 'p' ? 'portrait' : 'landscape',
-            sensorSize: isCustomSensorSize ? 'custom' : sensorSizeOptionValue,
-            customSensorWidth: isCustomSensorSize ? Number(sensorWidths[i]) : defaultCustomSensorWidth,
-            customSensorHeight: isCustomSensorSize ? Number(sensorHeights[i]) : defaultCustomSensorHeight
-        });
+        const settings = ControlGroupSettings.fromBasic(focalLengths[i], portraits[i], sensorWidths[i], sensorHeights[i]);
+        controlGroupSettingsList.push(settings);
     }
-    return controlGroupValuesList;
+    return controlGroupSettingsList;
+}
+
+class ControlGroupSettings {
+    /**
+     * Create control group settings from the given values.
+     *
+     * @param {Number} focalLength the focal length in mm
+     * @param {Boolean} portrait true, if portrait orientation
+     * @param {String} sensorSizeSelection value of the sensor size drop down manu
+     * @param {Number} customSensorWidth width of the custom sensor in mm
+     * @param {Number} customSensorHeight height of the custom sensor in mm
+     * @param {String} color border and rendering color
+     */
+    constructor(focalLength, portrait, sensorSizeSelection, customSensorWidth, customSensorHeight, color) {
+        this.focalLength = focalLength;
+        this.portrait = portrait;
+        this.sensorSizeSelection = sensorSizeSelection;
+        this.customSensorWidth = customSensorWidth;
+        this.customSensorHeight = customSensorHeight;
+        this.color = color;
+    }
+
+    /**
+     * Get the control group settings from the given control group.
+     *
+     * @param {Element} controlGroup HTML element of the control group
+     * @returns control group settings of the given control group
+     */
+    static fromControlGroup(controlGroup) {
+        return new ControlGroupSettings(
+            Number(controlGroup.querySelector('input[name=focal-length]').value),
+            controlGroup.querySelector('select[name=portrait]').value === 'true',
+            controlGroup.querySelector('select[name=sensor-size]').value,
+            Number(controlGroup.querySelector('input[name=custom-sensor-width]').value),
+            Number(controlGroup.querySelector('input[name=custom-sensor-height]').value),
+            controlGroup.style.borderColor);
+    }
+
+    /**
+     * Create control group settings from the given basic parameters. If the sensor dimensions can be selected in the drop down menu,
+     * this value will be chosen. Otherwise the sensor dimensions will be set via the custom fields.
+     *
+     * @param {Number} focalLength the focal length in mm
+     * @param {Boolean} portrait true, if portrait orientation
+     * @param {Number} sensorWidth width of the sensor in mm
+     * @param {Number} sensorHeight height of the sensor in mm
+     * @returns control group settings that represent the given values
+     */
+    static fromBasic(focalLength, portrait, sensorWidth, sensorHeight) {
+        const sensorSizeOptionValue = `{"width": ${sensorWidth}, "height": ${sensorHeight}}`;
+        const isCustomSensor = document.querySelector(`#control-group-template option[value='${sensorSizeOptionValue}']`) === null;
+        return new ControlGroupSettings(
+            focalLength, portrait,
+            isCustomSensor ? 'custom' : sensorSizeOptionValue,
+            isCustomSensor ? sensorWidth : this.defaultSettings.customSensorWidth,
+            isCustomSensor ? sensorHeight : this.defaultSettings.customSensorHeight,
+            null);
+    }
+
+    static get defaultSettings() {
+        if (this.defaultSettingsCache === undefined) {
+            this.defaultSettingsCache = this.fromControlGroup(document.querySelector('#control-group-template'));
+        }
+        return this.defaultSettingsCache;
+    }
+
+    get sensorOriented() {
+        let sensor = this.sensor;
+        if (this.portrait) {
+            [sensor.width, sensor.height] = [sensor.height, sensor.width];
+        }
+        return sensor;
+    }
+
+    get sensor() {
+        return this.sensorSizeSelection === 'custom'
+            ? { width: this.customSensorWidth, height: this.customSensorHeight }
+            : JSON.parse(this.sensorSizeSelection);
+    }
 }
