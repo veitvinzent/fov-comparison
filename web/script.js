@@ -120,8 +120,9 @@ function render() {
     context2d.lineWidth = 1.5;
 
     // gather focal length and sensor size information from the elements
-    document.querySelectorAll('#control-groups .control-group').values()
+    [...document.querySelectorAll('#control-groups .control-group')]
         .map(controlGroup => ControlGroupSettings.fromControlGroup(controlGroup))
+        .reverse()
         .forEach(controlGroupSettings => {
 
             // calculate the view area
