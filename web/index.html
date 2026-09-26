@@ -4,50 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camera FOV Comparison</title>
-    <script src="script.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5.15.1/index.min.css">
     <link rel="stylesheet" href="style.css">
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+          "@photo-sphere-viewer/core": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5.15.1/index.module.min.js"
+        }
+      }
+    </script>
+    <script type="module" src="script.js"></script>
   </head>
   <body>
-    <div id="app">
-      <div id="controls-container">
-        <div id="control-group-template" class="control-group">
-          <label for="focal-length">Focal length (mm)</label>
-          <input type="number" name="focal-length" min="0" value="50" oninput="render();">
-          <label for="orientation">Orientation</label>
-          <select name="portrait" oninput="render();">
-            <option value="false">Landscape</option>
-            <option value="true">Portrait</option>
-          </select>
-          <label for="sensor-size">Sensor size</label>
-          <select name="sensor-size" oninput="sensorSizeSelectionChanged(this);">
-            <option value='{"width": 36, "height": 24}'>Full Frame</option>
-            <option value='{"width": 23.6, "height": 15.7}'>APS-C (excl. Canon)</option>
-            <option value='{"width": 22.2, "height": 14.8}'>APS-C (Canon)</option>
-            <option value='{"width": 17.3, "height": 13}'>Micro Four Thirds</option>
-            <option value='{"width": 43.8, "height": 32.9}'>Medium Format</option>
-            <option value='{"width": 13.2, "height": 8.8}'>1 inch</option>
-            <option value='{"width": 8.6, "height": 6.6}'>2/3 inch</option>
-            <option value='{"width": 6.4, "height": 4.8}'>1/2 inch</option>
-            <option value='{"width": 62, "height": 46}'>instax mini</option>
-            <option value='{"width": 62, "height": 62}'>instax SQUARE</option>
-            <option value='{"width": 99, "height": 62}'>instax WIDE</option>
-            <option value="custom">Custom...</option>
-          </select>
-          <label class="hidden" for="custom-sensor-width">Sensor width (mm)</label>
-          <input class="hidden" type="number" name="custom-sensor-width" min="0" value="50" oninput="render();">
-          <label class="hidden" for="custom-sensor-height">Sensor height (mm)</label>
-          <input class="hidden" type="number" name="custom-sensor-height" min="0" value="50" oninput="render();">
-        </div>
-        <div id="super-controls">
-          <input type="button" value="Add &#127909;" onclick="addControlGroup();">
-          <input type="button" value="Reset &#9851;&#65039;" onclick="resetControlGroups();">
-          <input type="button" value="Copy settings as URL &#127757;" onclick="createAndCopySettingsUrl();">
-        </div>
-        <div id="control-groups"></div>
-      </div>
-      <div id="canvas-container">
-        <canvas id="canvas"></canvas>
-      </div>
-    </div>
+    <div id="viewer" style="width: 100vw; height: 100vh;"></div>
   </body>
 </html>
