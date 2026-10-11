@@ -18,9 +18,24 @@
         }
       }
     </script>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="main.js"></script>
   </head>
   <body>
     <div id="viewer" style="width: 100vw; height: 100vh;"></div>
+    <template id="camera-editor-template">
+      <label for="sensor-name">Sensor</label>
+      <select id="sensor-name" name="sensor-name">
+        <option value="full_frame">Full Frame</option>
+        <option value="aps_c">APS-C</option>
+        <option value="aps_c_canon">APS-C (Canon)</option>
+        <option value="medium_format_fujifilm_gfx">Medium Format (Fujifilm GFX)</option>
+        <option value="mirco_four_thirds">Micro Four Thirds</option>
+        <option value="one_inch">1 inch</option>
+      </select><br>
+      <label for="focal-length">Focal length</label>
+      <input id="focal-length" name="focal-length" type="number" value="50"><br>
+      <label for="color">Color</label>
+      <input id="color" name="color" type="text" value="red">
+    </template>
   </body>
 </html>
